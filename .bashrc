@@ -1,17 +1,18 @@
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
 
 
 PATH=$PATH:/usr/local/bin:/usr/local/sbin:~/bin
 
+# CDPATH is one of bash's best "secret" features. Eg. "cd projects" will drop me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD has "projects" subdir).
 CDPATH=.:~:~/Work/SVN:~/Dropbox
-
 
 
 alias ssh="ssh -Y"
 alias ls='ls -G'
 
-
-# don't use system svn on macbook
-alias svn="/usr/local/bin/svn"
 export SVN_EDITOR="/usr/bin/vim"
 
 
@@ -39,12 +40,33 @@ alias egrep='egrep --color=auto'
 
 
 
+## Enable tab completion for usernames, ssh hostnames, etc etc. Show this to a smug zsh user some time :)
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion*
+fi
+if [ -d /etc/bash_completion.d ]; then
+    . /etc/bash_completion.d/*
+fi
 
+
+
+# OS X stuff
 if [ `uname` = "Darwin" ] ; then 
-    if [ -f `brew --prefix`/etc/bash_completion ]; then
-        . `brew --prefix`/etc/bash_completion
+
+
+    # OS X version of svn is missing ssl support
+    alias svn="/usr/local/bin/svn"
+
+
+   #BREW_PREFIX=`brew --prefix` # too slow
+   BREW_PREFIX="/usr/local"
+    if [ -f ${BREW_PREFIX}/etc/bash_completion ]; then
+        . ${BREW_PREFIX}/etc/bash_completion
     fi
 fi
+
+
+
 
 
 ## Setup vi mode
@@ -55,7 +77,7 @@ bind -m vi-insert "\C-p":dynamic-complete-history
 bind -m vi-insert "\C-n":menu-complete
 
 
-# enable ^a/^e and ^l in vi mode
+# re-enable ^a/^e and ^l in vi mode
 bind -m vi-insert "\C-l":clear-screen
 bind -m vi-insert "\C-a":beginning-of-line
 bind -m vi-insert "\C-e":end-of-line

@@ -17,7 +17,9 @@ export SVN_EDITOR="/usr/bin/vim"
 
 
 # export amazon AWS keys etc.
-source ~/.bash_private
+if [ -f ~/.bash_private ]; then
+    source ~/.bash_private
+fi
 
 
 shopt -s histappend
@@ -40,13 +42,21 @@ alias egrep='egrep --color=auto'
 
 
 
-## Enable tab completion for usernames, ssh hostnames, etc etc. Show this to a smug zsh user some time :)
+
+
+
+## Enable bash tab completion for usernames, ssh hostnames, etc etc. Show this to a smug zsh user some time :)
+
+# don't expand hostnames out of /etc/hosts 
+COMP_KNOWN_HOSTS_WITH_HOSTFILE=""
+
 if [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion*
+    . /etc/bash_completion
 fi
-if [ -d /etc/bash_completion.d ]; then
-    . /etc/bash_completion.d/*
+if [ -f ~/.bash_completion ]; then
+    . ~/.bash_completion
 fi
+
 
 
 

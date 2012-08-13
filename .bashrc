@@ -1,3 +1,16 @@
+batterystatus() {
+    bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
+    bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
+    filled=$(echo "scale=1;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
+    for i in {1..5} ; do 
+        if [ $i -le $filled ] ; then
+            echo -en "\xe2\x96\xa3"  
+        else 
+            echo -en "\xe2\x96\xa1"
+        fi
+    done
+}
+
 # Source global definitions
 if [ -f /etc/bashrc ]; then
         . /etc/bashrc
@@ -72,7 +85,7 @@ type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
 if [ `uname` = "Darwin" ] ; then 
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
-    PS1="$(batterystaus) ${PS1}"
+    PS1="$(batterystatus) ${PS1}"
 
 fi
 
@@ -102,19 +115,6 @@ fi
 
 
 
-
-batterystatus() {
-    bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
-    bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
-    filled=$(echo "scale=1;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
-    for i in {1..5} ; do 
-        if [ $i -le $filled ] ; then
-            echo -en "\xe2\x96\xa3"  
-        else 
-            echo -en "\xe2\x96\xa1"
-        fi
-    done
-}
 
 #✓ e2 9c 93
 #✗ e2 9c 97

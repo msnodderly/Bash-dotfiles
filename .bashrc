@@ -1,3 +1,4 @@
+# Add a macbook battery status indicator to bash prompt. 
 batterystatus() {
     bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
     bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
@@ -73,7 +74,8 @@ fi
 GIT_PS1_SHOWUNTRACKEDFILES=1 
 GIT_PS1_SHOWDIRTYSTATE=1
 PS1=""
-type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
+
+type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ '
 
 
 
@@ -84,7 +86,7 @@ type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
 if [ `uname` = "Darwin" ] ; then 
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
-    PS1="$(batterystatus)${PS1}"
+    #PS1="$(batterystatus)${PS1}"
 
 fi
 

@@ -37,6 +37,7 @@ alias egrep='egrep --color=auto'
 # because most distros don't have it enabled by default.  Tab completion for git commands,
 # usernames, ssh hostnames, etc etc.  Next time you're compiling something,
 # try "./configure --with[TAB]".  Show this to a smug zsh user some time :)
+# see http://www.caliban.org/bash
 
 # I don't want to tab-expand with hostnames in /etc/hosts 
 COMP_KNOWN_HOSTS_WITH_HOSTFILE=""
@@ -59,7 +60,10 @@ fi
   
 GIT_PS1_SHOWUNTRACKEDFILES=1 
 GIT_PS1_SHOWDIRTYSTATE=1
+PS1=""
 type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
+
+
 
 
 
@@ -68,6 +72,8 @@ type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
 if [ `uname` = "Darwin" ] ; then 
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
+    PS1="$(batterystaus) ${PS1}"
+
 fi
 
 export SVN_EDITOR="/usr/bin/vim"
@@ -97,3 +103,18 @@ fi
 
 
 
+batterystatus() {
+    bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
+    bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
+    filled=$(echo "scale=1;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
+    for i in {1..5} ; do 
+        if [ $i -le $filled ] ; then
+            echo -en "\xe2\x96\xa3"  
+        else 
+            echo -en "\xe2\x96\xa1"
+        fi
+    done
+}
+
+#✓ e2 9c 93
+#✗ e2 9c 97

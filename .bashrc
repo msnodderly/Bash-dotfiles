@@ -6,32 +6,23 @@ fi
 
 PATH=$PATH:/usr/local/bin:/usr/local/sbin:~/bin
 
-# CDPATH is one of bash's best "secret" features. Eg. "cd projects" will drop me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD has "projects" subdir).
+# CDPATH is one of bash's best "secret" features. Eg. "cd projects" will drop
+# me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD
+# has "projects" subdir).
 CDPATH=.:~:~/Work/SVN:~/Dropbox
 
 
 alias ssh="ssh -Y"
 alias ls='ls -G'
 
-export SVN_EDITOR="/usr/bin/vim"
-
-
-# export amazon AWS keys etc.
-if [ -f ~/.bash_private ]; then
-    source ~/.bash_private
-fi
 
 
 shopt -s histappend
-
 shopt -s checkwinsize
-
-# see http://www.caliban.org/bash/index.shtml
-# correct minor spelling errors in a cd command
 shopt -s cdspell
-#  cause multi-line commands to be appended to your bash history as a single line command
 shopt -s cmdhist
-# egrep-style extended pattern matching
+
+# enable egrep-style extended pattern matching
 shopt -s extglob
 
 
@@ -45,12 +36,17 @@ alias egrep='egrep --color=auto'
 
 
 
-## Enable bash tab completion for usernames, ssh hostnames, etc etc. Show this to a smug zsh user some time :)
+# Enable bash tab completion.  This is bash's best feature that no one knows about
+# because most distros don't have it enabled by default.  Tab completion for git commands,
+# usernames, ssh hostnames, etc etc. Show this to a smug zsh  user some time :)
 
-# don't expand hostnames out of /etc/hosts 
+# I don't want to expand hostnames out of /etc/hosts 
 COMP_KNOWN_HOSTS_WITH_HOSTFILE=""
 
 if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+if [ -f /usr/local/etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 if [ -f ~/.bash_completion ]; then
@@ -59,22 +55,13 @@ fi
 
 
 
-
 # OS X stuff
 if [ `uname` = "Darwin" ] ; then 
-
-
-    # OS X version of svn is missing ssl support
+    # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
-
-
-   #BREW_PREFIX=`brew --prefix` # too slow
-   BREW_PREFIX="/usr/local"
-    if [ -f ${BREW_PREFIX}/etc/bash_completion ]; then
-        . ${BREW_PREFIX}/etc/bash_completion
-    fi
 fi
 
+export SVN_EDITOR="/usr/bin/vim"
 
 
 
@@ -91,4 +78,12 @@ bind -m vi-insert "\C-n":menu-complete
 bind -m vi-insert "\C-l":clear-screen
 bind -m vi-insert "\C-a":beginning-of-line
 bind -m vi-insert "\C-e":end-of-line
+
+
+
+# Personal stuff -- export amazon AWS keys etc.
+if [ -f ~/.bash_private ]; then
+    source ~/.bash_private
+fi
+
 

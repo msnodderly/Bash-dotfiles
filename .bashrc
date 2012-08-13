@@ -9,7 +9,7 @@ PATH=$PATH:/usr/local/bin:/usr/local/sbin:~/bin
 # CDPATH is one of bash's best "secret" features. Eg. "cd projects" will drop
 # me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD
 # has "projects" subdir).
-CDPATH=.:~:~/Work/SVN:~/Dropbox
+CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
 
 alias ssh="ssh -Y"
@@ -33,25 +33,34 @@ alias egrep='egrep --color=auto'
 
 
 
-
-
-
 # Enable bash tab completion.  This is bash's best feature that no one knows about
 # because most distros don't have it enabled by default.  Tab completion for git commands,
-# usernames, ssh hostnames, etc etc. Show this to a smug zsh  user some time :)
+# usernames, ssh hostnames, etc etc.  Next time you're compiling something,
+# try "./configure --with[TAB]".  Show this to a smug zsh user some time :)
 
-# I don't want to expand hostnames out of /etc/hosts 
+# I don't want to tab-expand with hostnames in /etc/hosts 
 COMP_KNOWN_HOSTS_WITH_HOSTFILE=""
 
 if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 if [ -f /usr/local/etc/bash_completion ]; then
-    . /etc/bash_completion
+    . /usr/local/etc/bash_completion
 fi
 if [ -f ~/.bash_completion ]; then
     . ~/.bash_completion
 fi
+
+
+# This adds the current git branch and status to the prompt when in
+# a git repo (if the appropriate functions from the bash_completion package are
+# installed -- See git-completion.bash for details). eg:
+# [mds@MDS-MacBook-Air Bash-dotfiles (master *)]$ 
+  
+GIT_PS1_SHOWUNTRACKEDFILES=1 
+GIT_PS1_SHOWDIRTYSTATE=1
+type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
+
 
 
 
@@ -62,7 +71,6 @@ if [ `uname` = "Darwin" ] ; then
 fi
 
 export SVN_EDITOR="/usr/bin/vim"
-
 
 
 
@@ -85,5 +93,7 @@ bind -m vi-insert "\C-e":end-of-line
 if [ -f ~/.bash_private ]; then
     source ~/.bash_private
 fi
+
+
 
 

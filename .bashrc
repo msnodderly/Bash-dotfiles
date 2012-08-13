@@ -29,7 +29,6 @@ alias ssh="ssh -Y"
 alias ls='ls -G'
 
 
-
 shopt -s histappend
 shopt -s checkwinsize
 shopt -s cdspell

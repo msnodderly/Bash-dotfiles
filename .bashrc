@@ -2,7 +2,7 @@
 batterystatus() {
     bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
     bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
-    filled=$(echo "scale=1;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
+    filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
     [ $bcur -lt $bmax ] && for i in {1..5} ; do 
         if [ $i -le $filled ] ; then
             echo -en "\xe2\x96\xa3"  

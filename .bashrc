@@ -117,6 +117,30 @@ fi
 
 
 
+# Solarized (http://ethanschoonover.com/solarized) color scheme for linux
+# terminal. From 'BoppreH at Hacker News: http://news.ycombinator.com/item?id=4412471 
+# For OS X Terminal.app, see https://github.com/tomislav/osx-lion-terminal.app-colors-solarized
 
+if [ "$TERM" = "linux" ]; then
+      echo -en "\e]P0002b36"
+      echo -en "\e]P1073642"
+      echo -en "\e]P2586e75"
+      echo -en "\e]P3657b83"
+      echo -en "\e]P4839496"
+      echo -en "\e]P593a1a1"
+      echo -en "\e]P6eee8d5"
+      echo -en "\e]P7fdf6e3"
+      echo -en "\e]P8b58900"
+      echo -en "\e]P9cb4b16"
+      echo -en "\e]PAdc322f"
+      echo -en "\e]PBd33682"
+      echo -en "\e]PC6c71c4"
+      echo -en "\e]PD268bd2"
+      echo -en "\e]PE2aa198"
+      echo -en "\e]PF859900"
+      clear
+fi
+
+# useful unicode chars:
 #✓ e2 9c 93
 #✗ e2 9c 97

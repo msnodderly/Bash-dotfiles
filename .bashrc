@@ -75,7 +75,7 @@ GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWDIRTYSTATE=1
 PS1=""
 
-type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$'
+type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
 
 
 

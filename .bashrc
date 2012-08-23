@@ -27,7 +27,7 @@ CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
 
 alias ssh="ssh -Y"
-alias ls='ls -G'
+alias ls='ls --color'
 
 
 shopt -s histappend
@@ -86,8 +86,10 @@ type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]
 if [ `uname` = "Darwin" ] ; then 
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
+    alias ls="ls -G"
     type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
     #PS1="$(batterystatus)${PS1}"
+
 
 fi
 

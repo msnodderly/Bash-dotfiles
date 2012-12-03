@@ -1,7 +1,23 @@
-# Add a macbook battery status indicator to bash prompt. 
-batterystatus-osx() {
-    bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
-    bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
+
+if [ `uname` = "Darwin" ] ; then
+    OSRELEASE="Darwin"
+elif [ -e /etc/redhat-release ] ; then
+    OSRELEASE="RedHat"
+else
+    OSRELEASE="OTHER"
+fi
+
+batterystatus() {
+    if [ $OSRELEASE = "Darwin" ] ; then 
+        bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
+        bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
+    elif [ $OSRELEASE = "RedHat" ]; then
+        bmax=$(egrep "last full capacity" /proc/acpi/battery/BAT0/info | awk '{print $4}')
+        bcur=$(egrep "remaining capacity" /proc/acpi/battery/BAT0/state| awk '{print $3}')
+    else 
+        bmax=1
+        bcur=1
+    fi
     filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
     [ $bcur -lt $bmax ] && for i in {1..5} ; do 
         if [ $i -le $filled ] ; then
@@ -11,20 +27,6 @@ batterystatus-osx() {
         fi 
     done && echo -n " "
 }
-
-batterystatus-redhat() {
-    bmax=$(egrep "last full capacity" /proc/acpi/battery/BAT0/info | awk '{print $4}')
-    bcur=$(egrep "remaining capacity" /proc/acpi/battery/BAT0/state| awk '{print $3}')
-    filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
-    [ $bcur -lt $bmax ] && for i in {1..5} ; do 
-        if [ $i -le $filled ] ; then
-            echo -en "\xe2\x96\xa3"  
-        else 
-            echo -en "\xe2\x96\xa1"
-        fi 
-    done && echo -n " "
-}
-
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -34,11 +36,8 @@ fi
 
 PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
 
-# CDPATH is one of bash's best "secret" features. Eg. "cd projects" will drop
-# me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD
-# has "projects" subdir).
-CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
+type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
 
 alias ssh="ssh -Y"
 alias ls='ls --color'
@@ -92,18 +91,14 @@ GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWDIRTYSTATE=1
 PS1=""
 
-type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
+
+# CDPATH is another one of bash's "secret" features. Eg. "cd projects" will drop
+# me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD
+# has a "projects" subdir).
+CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
 
 
-
-if [ `uname` = "Darwin" ] ; then
-    OSRELEASE="Darwin"
-elif [ -e /etc/redhat-release ] ; then
-    OSRELEASE="RedHat"
-else
-    OSRELEASE="OTHER"
-fi
 
 
 # OS X stuff
@@ -111,14 +106,15 @@ if [ $OSRELEASE = "Darwin" ] ; then
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
     alias ls="ls -G"
-    type -p __git_ps1  && PS1='[$(batterystatus-osx)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
     #PS1="$(batterystatus)${PS1}"
 fi
 
+
+
 # Red Hat stuff
-if [ $OSRELEASE = "RedHat" ] ; then 
-    type -p __git_ps1  && PS1='[$(batterystatus-redhat)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
-fi
+#if [ $OSRELEASE = "RedHat" ] ; then 
+#    # TODO
+#fi
 
 export SVN_EDITOR="/usr/bin/vim"
 

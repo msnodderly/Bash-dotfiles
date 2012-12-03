@@ -12,9 +12,10 @@ batterystatus() {
         bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
         bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
     elif [ $OSRELEASE = "RedHat" ]; then
+        # TODO: test on Debian et al
         bmax=$(egrep "last full capacity" /proc/acpi/battery/BAT0/info | awk '{print $4}')
         bcur=$(egrep "remaining capacity" /proc/acpi/battery/BAT0/state| awk '{print $3}')
-    else 
+    else  
         bmax=1
         bcur=1
     fi

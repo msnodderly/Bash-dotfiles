@@ -1,33 +1,11 @@
-
-if [ `uname` = "Darwin" ] ; then
-    OSRELEASE="Darwin"
-elif [ -e /etc/redhat-release ] ; then
-    OSRELEASE="RedHat"
-else
-    OSRELEASE="OTHER"
-fi
-
-batterystatus() {
-    if [ $OSRELEASE = "Darwin" ] ; then 
-        bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
-        bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
-    elif [ $OSRELEASE = "RedHat" ]; then
-        # TODO: test on Debian et al
-        bmax=$(egrep "last full capacity" /proc/acpi/battery/BAT0/info | awk '{print $4}')
-        bcur=$(egrep "remaining capacity" /proc/acpi/battery/BAT0/state| awk '{print $3}')
-    else  
-        bmax=1
-        bcur=1
-    fi
-    filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
-    [ $bcur -lt $bmax ] && for i in {1..5} ; do 
-        if [ $i -le $filled ] ; then
-            echo -en "\xe2\x96\xa3"  
-        else 
-            echo -en "\xe2\x96\xa1"
-        fi 
-    done && echo -n " "
-}
+        #if [ $i -le $filled ] ; then
+#
+#            echo -en "\xe2\x96\xa3"  
+#        else 
+#            echo -en "\xe2\x96\xa1"
+#        fi 
+#    done && echo -n " "
+#}
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -37,8 +15,11 @@ fi
 
 PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
 
+# CDPATH is one of bash's best "secret" features. Eg. "cd projects" will drop
+# me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD
+# has "projects" subdir).
+CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
-type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
 
 alias ssh="ssh -Y"
 alias ls='ls --color'
@@ -92,30 +73,21 @@ GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWDIRTYSTATE=1
 PS1=""
 
+type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
 
-# CDPATH is another one of bash's "secret" features. Eg. "cd projects" will drop
-# me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD
-# has a "projects" subdir).
-CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
 
 
 
 
 # OS X stuff
-if [ $OSRELEASE = "Darwin" ] ; then 
+if [ `uname` = "Darwin" ] ; then 
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
     alias ls="ls -G"
-    #PS1="$(batterystatus)${PS1}"
+    alias vi="mvim -v"
+    type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
 fi
-
-
-
-# Red Hat stuff
-#if [ $OSRELEASE = "RedHat" ] ; then 
-#    # TODO
-#fi
 
 export SVN_EDITOR="/usr/bin/vim"
 
@@ -143,32 +115,21 @@ fi
 
 
 
-# Solarized (http://ethanschoonover.com/solarized) color scheme for linux
-# terminal. From 'BoppreH at Hacker News: http://news.ycombinator.com/item?id=4412471 
-# For OS X Terminal.app, see https://github.com/tomislav/osx-lion-terminal.app-colors-solarized
-
-if [ "$TERM" = "linux" ]; then
-      echo -en "\e]P0002b36"
-      echo -en "\e]P1073642"
-      echo -en "\e]P2586e75"
-      echo -en "\e]P3657b83"
-      echo -en "\e]P4839496"
-      echo -en "\e]P593a1a1"
-      echo -en "\e]P6eee8d5"
-      echo -en "\e]P7fdf6e3"
-      echo -en "\e]P8b58900"
-      echo -en "\e]P9cb4b16"
-      echo -en "\e]PAdc322f"
-      echo -en "\e]PBd33682"
-      echo -en "\e]PC6c71c4"
-      echo -en "\e]PD268bd2"
-      echo -en "\e]PE2aa198"
-      echo -en "\e]PF859900"
-      clear
-fi
-
-
 PATH=$PATH:$HOME/.rvm/bin 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" 
 
+
+##
+## Experimental settings -- still evaluating how these fit into my workflow
+##
+
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ......="cd ../../../../.."
+
+if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then
+    tmux -2 attach || tmux -2 new; exit
+fi
 

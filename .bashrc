@@ -1,11 +1,16 @@
-        #if [ $i -le $filled ] ; then
-#
-#            echo -en "\xe2\x96\xa3"  
-#        else 
-#            echo -en "\xe2\x96\xa1"
-#        fi 
-#    done && echo -n " "
-#}
+# Add a macbook battery status indicator to bash prompt. 
+batterystatus() {
+    bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
+    bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
+    filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
+    [ $bcur -lt $bmax ] && for i in {1..5} ; do 
+        if [ $i -le $filled ] ; then
+            echo -en "\xe2\x96\xa3"  
+        else 
+            echo -en "\xe2\x96\xa1"
+        fi 
+    done && echo -n " "
+}
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -21,7 +26,7 @@ PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
 CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
 
-alias ssh="ssh -Y"
+alias ssh="TERM=xterm-color ssh -Y"
 alias ls='ls --color'
 
 alias pd='pushd `pwd`'
@@ -129,7 +134,9 @@ alias ....="cd ../../.."
 alias .....="cd ../../../.."
 alias ......="cd ../../../../.."
 
-if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then
-    tmux -2 attach || tmux -2 new; exit
-fi
+
+#if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then
+#    tmux new; exit
+#fi
+
 

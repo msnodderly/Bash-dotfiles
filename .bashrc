@@ -1,7 +1,17 @@
-# Add a macbook battery status indicator to bash prompt. 
+# Add a battery status indicator to bash prompt. 
+
+
 batterystatus() {
-    bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
-    bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
+
+    # system_profiler is slow, so trying to avoid running it twice 
+    battstr=$(/usr/sbin/system_profiler SPPowerDataType | egrep "Full Charge Capacity|Charge Remaining" )
+    bcur=$(echo $battstr |grep "Charge Remaining" | cut -f4 -d" "  )
+    bmax=$(echo $battstr |grep "Full Charge Capacity" | awk '{print $NF}')
+
+    ## alternate method -- this used to work fine, but became unusably slow for me in 10.8.4
+    # bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
+    # bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
+
     filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
     [ $bcur -lt $bmax ] && for i in {1..5} ; do 
         if [ $i -le $filled ] ; then
@@ -9,7 +19,7 @@ batterystatus() {
         else 
             echo -en "\xe2\x96\xa1"
         fi 
-    done && echo -n " "
+    done && echo -n ""
 }
 
 # Source global definitions
@@ -25,6 +35,7 @@ PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
 # has "projects" subdir).
 CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 
+export CDPATH
 
 alias ssh="TERM=xterm-color ssh -Y"
 alias ls='ls --color'
@@ -51,12 +62,11 @@ alias egrep='egrep --color=auto'
 
 # Enable bash tab completion.  This is bash's best feature that no one knows about
 # because most distros don't have it enabled by default.  Tab completion for git commands,
-# usernames, ssh hostnames, etc etc.  Next time you're compiling something,
-# try "./configure --with[TAB]".  Show this to a smug zsh user some time :)
-# see http://www.caliban.org/bash
+# usernames, ssh hostnames, etc.
+# Show this to a smug zsh user some time :)
 
-# I don't want to tab-expand with hostnames in /etc/hosts 
-COMP_KNOWN_HOSTS_WITH_HOSTFILE=""
+# don't tab-expand hostnames in /etc/hosts 
+#COMP_KNOWN_HOSTS_WITH_HOSTFILE=""
 
 if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
@@ -78,11 +88,41 @@ GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWDIRTYSTATE=1
 PS1=""
 
+
+
+if tput setaf 1 &> /dev/null; then
+  RED=$(tput setaf 1)
+  GREEN=$(tput setaf 2)
+  YELLOW=$(tput setaf 3)
+  PURPLE=$(tput setaf 4)
+  MAGENTA=$(tput setaf 5)
+  CYAN=$(tput setaf 6)
+  WHITE=$(tput setaf 7)
+  BOLD=$(tput bold)
+  RESET=$(tput sgr0)
+else
+  MAGENTA="\033[1;31m"
+  ORANGE="\033[1;33m"
+  GREEN="\033[1;32m"
+  PURPLE="\033[1;35m"
+  WHITE="\033[1;37m"
+  BOLD=""
+  RESET="\033[m"
+fi
+
+export BOLD
+export RESET
+export RED
+export GREEN
+export YELLOW
+export PURPLE
+export MAGENTA
+export CYAN
+export WHITE
+
+
+
 type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
-
-
-
-
 
 
 # OS X stuff
@@ -90,8 +130,8 @@ if [ `uname` = "Darwin" ] ; then
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
     alias ls="ls -G"
-    alias vi="mvim -v"
-    type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
+   # type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
+    type -p __git_ps1  && PS1='$(batterystatus)${WHITE} [\u@\h:${PURPLE}\w\[${CYAN}\]$(__git_ps1 " (%s)")${RESET}]\$ ' || PS1='[\u@\h \W]\\$ '
 fi
 
 export SVN_EDITOR="/usr/bin/vim"
@@ -124,15 +164,13 @@ PATH=$PATH:$HOME/.rvm/bin
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" 
 
 
-##
-## Experimental settings -- still evaluating how these fit into my workflow
-##
-
+# lazy cd..
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 alias ......="cd ../../../../.."
+alias .......="cd ../../../../../.."
 
 
 #if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then

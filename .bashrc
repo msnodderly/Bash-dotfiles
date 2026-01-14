@@ -3,23 +3,26 @@
 
 batterystatus() {
 
-    # system_profiler is slow, so trying to avoid running it twice 
+    # system_profiler is slow, so trying to avoid running it twice
     battstr=$(/usr/sbin/system_profiler SPPowerDataType | egrep "Full Charge Capacity|Charge Remaining" )
-    bcur=$(echo $battstr |grep "Charge Remaining" | cut -f4 -d" "  )
-    bmax=$(echo $battstr |grep "Full Charge Capacity" | awk '{print $NF}')
+    bcur=$(echo "$battstr" | grep "Charge Remaining" | cut -f4 -d" "  )
+    bmax=$(echo "$battstr" | grep "Full Charge Capacity" | awk '{print $NF}')
 
     ## alternate method -- this used to work fine, but became unusably slow for me in 10.8.4
     # bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
     # bcur=$(ioreg -rc  AppleSmartBattery |egrep CurrentCapacity | cut -f2 -d=)
 
-    filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
-    [ $bcur -lt $bmax ] && for i in {1..5} ; do 
-        if [ $i -le $filled ] ; then
-            echo -en "\xe2\x96\xa3"  
-        else 
-            echo -en "\xe2\x96\xa1"
-        fi 
-    done && echo -n ""
+    # Check if we have valid battery data before calculating
+    if [ -n "$bcur" ] && [ -n "$bmax" ] && [ "$bmax" -gt 0 ]; then
+        filled=$(echo "scale=2;($bcur/$bmax)  * 10 / 2 " | bc -l | xargs printf "%1.0f")
+        [ "$bcur" -lt "$bmax" ] && for i in {1..5} ; do
+                if [ "$i" -le "$filled" ] ; then
+                echo -en "\xe2\x96\xa3"
+            else
+                echo -en "\xe2\x96\xa1"
+            fi
+        done && echo -n ""
+    fi
 }
 
 # Source global definitions
@@ -38,7 +41,6 @@ CDPATH=.:~:~/Work/SVN:~/Dropbox:/Volumes
 export CDPATH
 
 alias ssh="TERM=xterm-color ssh -Y"
-alias ls='ls --color'
 
 alias pd='pushd `pwd`'
 
@@ -126,12 +128,12 @@ type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]
 
 
 # OS X stuff
-if [ `uname` = "Darwin" ] ; then 
+if [ "$(uname)" = "Darwin" ] ; then 
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
     alias ls="ls -G"
    # type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
-    type -p __git_ps1  && PS1='$(batterystatus)${WHITE} [\u@\h:${PURPLE}\w\[${CYAN}\]$(__git_ps1 " (%s)")${RESET}]\$ ' || PS1='[\u@\h \W]\\$ '
+    type -p __git_ps1  && PS1='$(batterystatus)\[${WHITE}\] [\u@\h:\[${PURPLE}\]\w\[${CYAN}\]$(__git_ps1 " (%s)")\[${RESET}\]]\$ ' || PS1='[\u@\h \W]\\$ '
 fi
 
 export SVN_EDITOR="/usr/bin/vim"

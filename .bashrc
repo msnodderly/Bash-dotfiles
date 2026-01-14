@@ -4,9 +4,9 @@
 batterystatus() {
 
     # system_profiler is slow, so trying to avoid running it twice 
-    battstr=$(/usr/sbin/system_profiler SPPowerDataType | egrep "Full Charge Capacity|Charge Remaining" )
-    bcur=$(echo $battstr |grep "Charge Remaining" | cut -f4 -d" "  )
-    bmax=$(echo $battstr |grep "Full Charge Capacity" | awk '{print $NF}')
+    battstr=$(/usr/sbin/system_profiler SPPowerDataType | grep -E "Full Charge Capacity|Charge Remaining" )
+    bcur=$(echo "$battstr" | grep "Charge Remaining" | cut -f4 -d" "  )
+    bmax=$(echo "$battstr" | grep "Full Charge Capacity" | awk '{print $NF}')
 
     ## alternate method -- this used to work fine, but became unusably slow for me in 10.8.4
     # bmax=$(ioreg -rc  AppleSmartBattery |egrep MaxCapacity | cut -f2 -d=)
@@ -28,7 +28,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 
-PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
+PATH=/usr/local/bin:/usr/local/sbin:$HOME/bin:$PATH
 
 # CDPATH is one of bash's best "secret" features. Eg. "cd projects" will drop
 # me into "~/Dropbox/projects" from anywhere in the filesystem (unless the PWD
@@ -40,7 +40,7 @@ export CDPATH
 alias ssh="TERM=xterm-color ssh -Y"
 alias ls='ls --color'
 
-alias pd='pushd `pwd`'
+pd() { pushd "$PWD"; }
 
 
 
@@ -84,9 +84,8 @@ fi
 # installed -- See git-completion.bash for details). eg:
 # [mds@MDS-MacBook-Air Bash-dotfiles (master *)]$ 
   
-GIT_PS1_SHOWUNTRACKEDFILES=1 
+GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWDIRTYSTATE=1
-PS1=""
 
 
 
@@ -101,7 +100,7 @@ if tput setaf 1 &> /dev/null; then
   BOLD=$(tput bold)
   RESET=$(tput sgr0)
 else
-  MAGENTA="\033[1;31m"
+  MAGENTA="\033[1;35m"
   ORANGE="\033[1;33m"
   GREEN="\033[1;32m"
   PURPLE="\033[1;35m"
@@ -126,12 +125,12 @@ type -p __git_ps1  && PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]
 
 
 # OS X stuff
-if [ `uname` = "Darwin" ] ; then 
+if [ "$(uname)" = "Darwin" ] ; then 
     # Use custom version of svn -- OS X version is missing ssl support
     alias svn="/usr/local/bin/svn"
     alias ls="ls -G"
    # type -p __git_ps1  && PS1='[$(batterystatus)\u@\h \W$(__git_ps1 " (%s)")]\$ ' || PS1='[\u@\h \W]\\$ '
-    type -p __git_ps1  && PS1='$(batterystatus)${WHITE} [\u@\h:${PURPLE}\w\[${CYAN}\]$(__git_ps1 " (%s)")${RESET}]\$ ' || PS1='[\u@\h \W]\\$ '
+    type -p __git_ps1  && PS1="\$(batterystatus)${WHITE} [\u@\h:${PURPLE}\w\[${CYAN}\]\$(__git_ps1 \" (%s)\")${RESET}]\$ " || PS1='[\u@\h \W]\\$ '
 fi
 
 export SVN_EDITOR="/usr/bin/vim"
